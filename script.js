@@ -1,4 +1,4 @@
-function convertMarkdownTableToBoxDrawing(markdownTable) {
+function convertMarkdownTableToBoxDrawing(markdownTable, heavy = false) {
     const lines = markdownTable.trim().split('\n');
     const headers = lines[0].split('|').map(header => header.trim()).filter(header => header);
     const alignments = lines[1].split('|').map(header => header.trim()).filter(header => header);
@@ -25,18 +25,29 @@ function convertMarkdownTableToBoxDrawing(markdownTable) {
         }).join(middle) + right;
     };
 
-    const topLine = drawLine('─', '┬', '┌', '┐');
-    const headerLine = drawRow(headers, '│', '│', '│', alignments);
-    const separatorLine = drawLine('─', '┼', '├', '┤');
-    const bottomLine = drawLine('─', '┴', '└', '┘');
-    const bodyLines = rows.map(row => drawRow(row, '│', '│', '│', alignments));
+    const topLine = heavy ?
+        drawLine('━', '┳', '┏', '┓') :
+        drawLine('─', '┬', '┌', '┐');
+    const headerLine = heavy ?
+        drawRow(headers, '┃', '┃', '┃', alignments) :
+        drawRow(headers, '│', '│', '│', alignments);
+    const separatorLine = heavy ?
+        drawLine('━', '╇', '┣', '┫') :
+        drawLine('─', '┼', '├', '┤');
+    const bottomLine = heavy ?
+        drawLine('━', '┷', '┗', '┛') :
+        drawLine('─', '┴', '└', '┘');
+    const bodyLines = rows.map(row => heavy ?
+        drawRow(row, '┃', '│', '┃', alignments) :
+        drawRow(row, '│', '│', '│', alignments));
 
     return [topLine, headerLine, separatorLine, ...bodyLines, bottomLine].join('\n');
 }
 
 function convertTable() {
     const markdownTable = document.getElementById('markdownInput').value;
-    document.getElementById('boxDrawingOutput').value = convertMarkdownTableToBoxDrawing(markdownTable);
+    const thickBorders = document.getElementById('thick-borders').checked;
+    document.getElementById('boxDrawingOutput').value = convertMarkdownTableToBoxDrawing(markdownTable, thickBorders);
 }
 
 /*
